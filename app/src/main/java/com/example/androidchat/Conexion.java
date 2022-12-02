@@ -6,6 +6,7 @@ import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.io.BufferedReader;
@@ -17,19 +18,20 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 
 public class Conexion {
-    HandlerThread ht, ht1;
-    Handler h, handlerMain, h1;
+    HandlerThread ht, ht1, ht2;
+    Handler h, handlerMain, h1, h2;
     TextView view;
     MainActivity mainActivity;
     String message;
     Socket socket;
     Button btn;
     BufferedWriter writer;
-    BufferedReader br;
+    BufferedReader reader;
 
-    public Conexion(Button btn,TextView view, MainActivity mainActivity, Handler handlerMain){
+    public Conexion(Button btn, TextView view, MainActivity mainActivity, Handler handlerMain){
         this.btn = btn;
         this.view=view;
         this.mainActivity=mainActivity;
@@ -48,12 +50,14 @@ public class Conexion {
                         writer.newLine();
                         writer.flush();
                     }
+                    view.setText("");
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
             }
         });
     }
+
 
     public void clienteConecta(){
         ht = new HandlerThread("Connect");
@@ -76,6 +80,12 @@ public class Conexion {
                     Looper looper = ht1.getLooper();
                     h1 = new Handler(looper);
 
+                    //Cliente Lee
+                    ht2 = new HandlerThread("Read");
+                    ht2.start();
+                    Looper looper2 = ht2.getLooper();
+                    h2 = new Handler(looper2);
+                    clienteLee();
                 }catch (Exception e){
                     e.printStackTrace();
                 }
@@ -83,4 +93,25 @@ public class Conexion {
         });
     }
 
+    public void clienteLee(){
+        h2.post(new Runnable() {
+            @Override
+            public void run() {
+                while (true){
+                        InputStream inputStream = null;
+                        try {
+                            inputStream = socket.getInputStream();
+                            reader = new BufferedReader(new InputStreamReader(inputStream));
+                            String line;
+                            while ((line = reader.readLine()) != null){
+
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+                }
+            }
+        });
+    }
 }
