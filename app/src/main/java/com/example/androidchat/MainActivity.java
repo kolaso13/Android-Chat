@@ -5,6 +5,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 
 import java.io.BufferedReader;
@@ -15,6 +17,7 @@ import java.net.Socket;
 
 public class MainActivity extends AppCompatActivity {
     EditText InputText;
+    Button SendBtn;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -22,25 +25,17 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        InputText = findViewById(R.id.InputText);
+        InputText = findViewById(R.id.inputText);
+        SendBtn = findViewById(R.id.sendBtn);
 
-        try {
-            Socket socket = new Socket("localhost", 5555);
+        InputStream inputStream = null;
 
-            InputStream inputStream = null;
+        Conexion conexion = new Conexion(SendBtn, InputText,this, new Handler());
+        conexion.clienteConecta();
 
-            Conexion conexion = new Conexion(InputText,this, new Handler(), socket);
-            conexion.clienteEscribe();
 
-            inputStream = socket.getInputStream();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-            String line;
-            while ((line = reader.readLine()) != null){
-                System.out.println(line);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
+
 
     }
 }

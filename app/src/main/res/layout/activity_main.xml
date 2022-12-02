@@ -12,24 +12,23 @@
         tools:ignore="MissingConstraints" />
 
     <EditText
-        android:id="@+id/InputText"
+        android:id="@+id/inputText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:ems="10"
         android:inputType="textPersonName"
-        android:text="Name"
+        tools:ignore="MissingConstraints"
         tools:layout_editor_absoluteX="34dp"
-        tools:layout_editor_absoluteY="656dp"
-        tools:ignore="MissingConstraints" />
+        tools:layout_editor_absoluteY="656dp" />
 
     <Button
-        android:id="@+id/button"
+        android:id="@+id/sendBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="48dp"
         android:text="Enviar"
-        app:layout_constraintBottom_toBottomOf="@+id/InputText"
-        app:layout_constraintStart_toEndOf="@+id/InputText"
-        app:layout_constraintTop_toTopOf="@+id/InputText"
+        app:layout_constraintBottom_toBottomOf="@+id/inputText"
+        app:layout_constraintStart_toEndOf="@+id/inputText"
+        app:layout_constraintTop_toTopOf="@+id/inputText"
         app:layout_constraintVertical_bias="1.0" />
 </androidx.constraintlayout.widget.ConstraintLayout>
