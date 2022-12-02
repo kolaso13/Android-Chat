@@ -18,6 +18,7 @@ import java.net.Socket;
 public class MainActivity extends AppCompatActivity {
     EditText InputText;
     Button SendBtn;
+    Conexion conexion;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -28,11 +29,8 @@ public class MainActivity extends AppCompatActivity {
         InputText = findViewById(R.id.inputText);
         SendBtn = findViewById(R.id.sendBtn);
 
-        InputStream inputStream = null;
-
-        Conexion conexion = new Conexion(SendBtn, InputText,this, new Handler());
+        conexion = new Conexion(SendBtn, InputText,this, new Handler());
         conexion.clienteConecta();
-
 
         SendBtn.setOnClickListener(new View.OnClickListener() {
             @Override

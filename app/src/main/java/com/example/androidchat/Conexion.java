@@ -19,40 +19,38 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 public class Conexion {
-    HandlerThread ht, ht1, ht2;
+    HandlerThread ht, ht1;
     Handler h, handlerMain, h1;
     TextView view;
     MainActivity mainActivity;
     String message;
     Socket socket;
     Button btn;
+    BufferedWriter writer;
+    BufferedReader br;
 
     public Conexion(Button btn,TextView view, MainActivity mainActivity, Handler handlerMain){
         this.btn = btn;
         this.view=view;
         this.mainActivity=mainActivity;
         this.handlerMain=handlerMain;
-
     }
 
     public void clienteEscribe(){
         h1.post(new Runnable() {
             @Override
             public void run() {
-
-                    try {
-                        message = view.getText().toString();
-                        Log.i("message", message);
-                        if(message.trim().length() > 0){
-                            OutputStream outputStream = socket.getOutputStream();
-                            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream));
-                            writer.write(message);
-                            writer.newLine();
-                            writer.flush();
-                        }
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
+                try {
+                    message = view.getText().toString();
+                    Log.i("message", message);
+                    if(message.trim().length() > 0){
+                        writer.write(message);
+                        writer.newLine();
+                        writer.flush();
                     }
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
             }
         });
     }
@@ -69,6 +67,9 @@ public class Conexion {
                 try {
                     socket = new Socket("10.0.2.2", 5555);
 
+                    OutputStream outputStream = socket.getOutputStream();
+                    writer = new BufferedWriter(new OutputStreamWriter(outputStream));
+
                     //Cliente Escribe
                     ht1 = new HandlerThread("Writte");
                     ht1.start();
@@ -78,11 +79,8 @@ public class Conexion {
                 }catch (Exception e){
                     e.printStackTrace();
                 }
-
             }
         });
-
-
     }
 
 }
