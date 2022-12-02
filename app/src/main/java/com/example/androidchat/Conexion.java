@@ -19,8 +19,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 public class Conexion {
-    HandlerThread ht;
-    Handler h, handlerMain;
+    HandlerThread ht, ht1, ht2;
+    Handler h, handlerMain, h1;
     TextView view;
     MainActivity mainActivity;
     String message;
@@ -32,50 +32,53 @@ public class Conexion {
         this.view=view;
         this.mainActivity=mainActivity;
         this.handlerMain=handlerMain;
-        ht = new HandlerThread("MyHandlerThread");
-        ht.start();
-        Looper looper = ht.getLooper();
-        h = new Handler(looper);
+
     }
 
     public void clienteEscribe(){
-        h.post(new Runnable() {
+        h1.post(new Runnable() {
             @Override
             public void run() {
-                while (true) {
-//                    try {
+
+                    try {
                         message = view.getText().toString();
-//                        if(message.trim().length() > 0){
-//                            OutputStream outputStream = socket.getOutputStream();
-//                            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream));
-//                            writer.write(message);
-//                            writer.newLine();
-//                            writer.flush();
-//                        }
-//                    } catch (IOException e) {
-//                        throw new RuntimeException(e);
-//                    }
-                }
+                        Log.i("message", message);
+                        if(message.trim().length() > 0){
+                            OutputStream outputStream = socket.getOutputStream();
+                            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream));
+                            writer.write(message);
+                            writer.newLine();
+                            writer.flush();
+                        }
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
             }
         });
     }
 
     public void clienteConecta(){
+        ht = new HandlerThread("Connect");
+        ht.start();
+        Looper looper = ht.getLooper();
+        h = new Handler(looper);
+
         h.post(new Runnable() {
             @Override
             public void run() {
                 try {
-                    socket = new Socket("localhost", 5555);
-                    Log.i("message", String.valueOf(socket));
+                    socket = new Socket("10.0.2.2", 5555);
+
+                    //Cliente Escribe
+                    ht1 = new HandlerThread("Writte");
+                    ht1.start();
+                    Looper looper = ht1.getLooper();
+                    h1 = new Handler(looper);
+
                 }catch (Exception e){
                     e.printStackTrace();
                 }
-                btn.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        clienteEscribe();
-                    }
-                });
+
             }
         });
 

@@ -34,8 +34,11 @@ public class MainActivity extends AppCompatActivity {
         conexion.clienteConecta();
 
 
-
-
-
+        SendBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                conexion.clienteEscribe();
+            }
+        });
     }
 }
