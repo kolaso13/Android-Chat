@@ -39,24 +39,32 @@ public class MainActivity extends AppCompatActivity {
         SendBtn = findViewById(R.id.sendBtn);
         ly = findViewById(R.id.LinearLayout);
 
-        conexion = new Conexion(context, ly, SendBtn, et1,this, new Handler());
+        conexion = new Conexion(this);
         conexion.iniciarConexion();
+
+
+        mMensajeViewModel = new ViewModelProvider(this).get(MensajeViewModel.class);
+        mMensajeViewModel.getAllMensajes().observe(this, mensaje -> {
+            if (ly.getChildCount() != 0){
+                TextView textView = new TextView(this);
+                textView.setText(mensaje.get(mensaje.size()-1).usuario + " " + mensaje.get(mensaje.size()-1).texto);
+                ly.addView(textView);
+            }else{
+                for (int i = 0; i < mensaje.size();i++){
+                    TextView textView = new TextView(this);
+                    textView.setText(mensaje.get(i).usuario + " " + mensaje.get(i).texto);
+                    ly.addView(textView);
+                }
+            }
+        });
+
 
         SendBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                conexion.enviarMensaje();
+                conexion.enviarMensaje(et1.getText().toString());
             }
         });
-
-//        mMensajeViewModel = new ViewModelProvider(this).get(MensajeViewModel.class);
-//        mMensajeViewModel.getAllMensajes().observe(this, mensaje -> {
-//            // Update the cached copy of the words in the adapter.
-//            TextView texto = new TextView(context);
-//            texto.setText(mensaje);
-//            texto.setLayoutParams(new ActionBar.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-//            ly.addView(texto);
-//        });
     }
 
 }

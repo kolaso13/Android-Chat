@@ -11,11 +11,13 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.lifecycle.ViewModelProvider;
 import androidx.room.Room;
 
 import com.example.androidchat.Database.AppDatabase;
 import com.example.androidchat.Database.Mensaje;
 import com.example.androidchat.Database.MensajeDAO;
+import com.example.androidchat.Database.MensajeViewModel;
 import com.example.androidchat.MainActivity;
 
 import java.io.BufferedReader;
@@ -31,56 +33,41 @@ import java.util.List;
 public class Conexion {
     HandlerThread htConexion, htEnviarMsj, htRecibirMsj;
     Handler hConexion, hEnviar, hRecibir, handlerMain;
-    TextView view;
     MainActivity mainActivity;
-    String message;
     Socket socket;
-    Button btn;
     BufferedWriter writer;
     BufferedReader reader;
-    LinearLayout ly;
-    Context context;
 
-
-    public Conexion(Context context, LinearLayout ly, Button btn, TextView view, MainActivity mainActivity, Handler handlerMain) {
-        this.context = context;
-        this.ly = ly;
-        this.btn = btn;
-        this.view=view;
+    public Conexion(MainActivity mainActivity) {
         this.mainActivity=mainActivity;
-        this.handlerMain=handlerMain;
 
-        htConexion = new HandlerThread("Conexion");
-        htEnviarMsj = new HandlerThread("Enviar");
-        htRecibirMsj = new HandlerThread("Recibir");
-
-        htConexion.start();
-        htEnviarMsj.start();
-        htRecibirMsj.start();
-
-        hConexion = new Handler(htConexion.getLooper());
-        hEnviar = new Handler(htEnviarMsj.getLooper());
-        hRecibir = new Handler(htRecibirMsj.getLooper());
         handlerMain = new Handler();
 
+        htConexion = new HandlerThread("Conexion");
+        htConexion.start();
+        hConexion = new Handler(htConexion.getLooper());
+
+        htEnviarMsj = new HandlerThread("Enviar");
+        htEnviarMsj.start();
+        hEnviar = new Handler(htEnviarMsj.getLooper());
+
+        htRecibirMsj = new HandlerThread("Recibir");
+        htRecibirMsj.start();
+        hRecibir = new Handler(htRecibirMsj.getLooper());
     }
 
-    public void enviarMensaje(){
+    public void enviarMensaje(String mensaje){
         hEnviar.post(new Runnable() {
             @Override
             public void run() {
-                try {
-                    message = view.getText().toString();
-                    Log.i("message", message);
-                    if(message.trim().length() > 0){
-                        writer.write(message);
+                if (mensaje.trim().length() > 0) {
+                    try {
+                        writer.write(mensaje);
                         writer.newLine();
                         writer.flush();
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
-
-                    view.setText("");
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
                 }
             }
         });
@@ -91,11 +78,9 @@ public class Conexion {
             @Override
             public void run() {
                 try {
-                    socket = new Socket("10.0.2.2", 6666);
-
+                    socket = new Socket("10.0.2.2", 5555);
                     writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
                     reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-
                     recibirMensaje();
                 }catch (Exception e){
                     e.printStackTrace();
@@ -116,11 +101,14 @@ public class Conexion {
                             handlerMain.post(new Runnable() {
                                 @Override
                                 public void run() {
-                                    Log.e("message", finalLine);
-                                    TextView texto = new TextView(context);
-                                    texto.setText(finalLine);
-                                    texto.setLayoutParams(new ActionBar.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-                                    ly.addView(texto);
+                                    Mensaje mensaje = new Mensaje();
+
+                                    mensaje.usuario = finalLine.substring(8,10) + ":";
+                                    mensaje.texto= finalLine.substring(15);
+
+                                    MensajeViewModel mensajeViewModel;
+                                    mensajeViewModel = new ViewModelProvider(mainActivity).get(MensajeViewModel.class);
+                                    mensajeViewModel.insert(mensaje);
                                 }
                             });
                         }
